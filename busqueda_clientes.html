@@ -1,0 +1,88 @@
+<div class="card text-bg-dark mb-3" style="width: 750px;">
+    <div class="card-header border-success">
+        <div data-bs-theme="dark" class="d-flex">
+            <div>Consulta de Clientes</div>
+            <div class="ms-auto">
+                <button type="button" class="btn-close close" data-form="busqueda_clientes"></button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row p-1">
+            <div class="col">
+                <table class="table table-sm table-hover table-dark" id="tblConsultaClientes">
+                    <thead>
+                        <tr>
+                            <th>Buscar:</th>
+                            <th colspan="4">
+                                <input type="text" name="txtBuscarClientes" id="txtBuscarClientes" 
+                                    class="form-control" onkeyup="buscarClientes(this.value)">
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>CODIGO</th>
+                            <th>NOMBRE</th>
+                            <th>DIRECCION</th>
+                            <th>TEL</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody> </tbody>
+                </table>
+            </div>
+        </div>  
+    </div>
+</div>
+<script>
+    mostrarDatosClientes();
+
+    function buscarClientes(val){
+        mostrarDatosClientes(val);
+    }
+    
+     function mostrarDatosClientes(valor){
+        valor = valor || '';
+        fetch(`/buscar_clientes`,{
+            method: 'POST',
+            body:j=JSON.stringify({buscar: valor})
+        }).then(resp=>resp.json())
+        .then(resp=>{
+            let $tblClientes = document.querySelector("#tblConsultaClientes > tbody"),
+                $filas = '';
+            resp.forEach(cliente => {
+                $filas += `
+                    <tr onClick='modificarCliente(${ JSON.stringify(cliente) })'>
+                        <td>${cliente.codigo}</td>
+                        <td>${cliente.nombre}</td>
+                        <td>${cliente.direccion}</td>
+                        <td>${cliente.telefono}</td>
+                        <td><button onClick='eliminarCliente(${ JSON.stringify(cliente) })' class="btn btn-danger">Eliminar</button></td>
+                    </tr>
+                `;
+            });
+            $tblClientes.innerHTML = $filas;
+        });
+    }
+    function modificarCliente(cliente){
+        frmClientes.dataset.accion = "modificar";
+        frmClientes.dataset.idcliente = cliente.idCliente;
+        txtCodigoClientes.value = cliente.codigo;
+        txtNombreClientes.value = cliente.nombre;
+        txtDireccionClientes.value = cliente.direccion;
+        txtTelefonoClientes.value = cliente.telefono;
+    }
+    function eliminarCliente(cliente){
+        if( confirm(`Esta seguro de eliminar a: ${cliente.nombre}`) ){
+            fetch("/clientes", {
+                method: "POST",
+                body: JSON.stringify({accion: "eliminar", idCliente: cliente.idCliente})
+            }).then(resp=>resp.json())
+            .then(respuesta=>{
+                if( respuesta.msg=="ok" ){
+                    limpiarDatosClientes();
+                    mostrarDatosClientes();
+                }
+            });
+        }
+    }
+</script>
