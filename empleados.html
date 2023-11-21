@@ -1,0 +1,84 @@
+<form method="post" id="frmClientes" data-idempleado="-1" data-accion="nuevo">
+    <div class="card bg-warning text-dark mb-3" style="width: 600px;">
+        <div class="bg-danger">
+            <div data-bs-theme="dark" class="d-flex">
+                <div>Registro de empleados</div>
+                <div class="ms-auto">
+                    <button type="button" class="btn-close close" data-form="empleados"></button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row p-1">
+                <div class="col-3">CODIGO:</div>
+                <div class="col-3">
+                    <input required type="text" name="txtCodigoEmpleados" id="txtCodigoEmpleados" class="form-control">
+                </div>
+            </div>
+            <div class="row p-1">
+                <div class="col-3">NOMBRE:</div>
+                <div class="col-6">
+                    <input required type="text" name="txtNombreEmpleados" id="txtNombreEmpleados" class="form-control">
+                </div>
+            </div>
+            <div class="row p-1">
+                <div class="col-3">DIRECCION:</div>
+                <div class="col-9">
+                    <input required type="text" name="txtDireccionEmpleados" id="txtDireccionEmpleados" class="form-control">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-3">TELEFONO:</div>
+                <div class="col-3">
+                    <input required type="text" name="txtTelefonoEmpleados" id="txtTelefonoEmpleados" class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="card-footer bg-transparent border-success">
+            <div class="row">
+                <div class="col text-center">
+                    <input type="reset" value="Nuevo" class="btn btn-danger">
+                    <input type="submit" value="Guardar" class="btn btn-success">
+                    <button id="btnBuscarEmpleado" class="btn btn-primary">Buscar Empleados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    btnBuscarEmpleado.addEventListener('click', event=>{
+        event.preventDefault();
+        abrirVentana('busqueda_empleados');
+        $element.show();
+    });
+    frmEmpleados.addEventListener("submit",event=>{
+        event.preventDefault();
+        let datos = {
+            accion : frmEmpleados.dataset.accion,
+            idEmpleado: frmEmpleados.dataset.idEmpleado,
+            codigo: txtCodigoEmpleados.value,
+            nombre: txtNombreEmpleados.value,
+            direccion: txtDireccionEmpleados.value,
+            telefono: txtTelefonoEmpleados.value,
+        };
+        fetch("/empleados", {
+            method: "POST",
+            body: JSON.stringify(datos)
+        }).then(resp=>resp.json())
+        .then(respuesta=>{
+            if( respuesta.msg=="ok" ){
+                limpiarDatosEmpleados();
+                mostrarDatosEmpleados();
+            }
+        });
+    });
+    
+    function limpiarDatosEmpleados(){
+        frmEmpleados.dataset.accion = "nuevo";
+        frmEmpleados.dataset.idempleado = "-1";
+        txtCodigoEmpleados.value = "";
+        txtNombreEmpleados.value = "";
+        txtDireccionEmpleados.value = "";
+        txtTelefonoEmpleados.value = "";
+    }
+</script>

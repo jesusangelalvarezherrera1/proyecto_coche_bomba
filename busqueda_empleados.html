@@ -1,0 +1,90 @@
+<div class="card text-bg-dark mb-3" style="width: 750px;">
+    <div class="card-header border-success">
+        <div data-bs-theme="dark" class="d-flex">
+            <div>Consulta de empleados</div>
+            <div class="ms-auto">
+                <button type="button" class="btn-close close" data-form="busqueda_empleados"></button>
+              
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row p-1">
+            <div class="col">
+                <table class="table table-sm table-hover table-dark" id="tblConsultaEmpleados">
+                    <thead>
+                        <tr>
+                            <th>Buscar:</th>
+                            <th colspan="4">
+                                <input type="text" name="txtBuscarEmpleados" id="txtBuscarEmpleados" 
+                                    class="form-control" onkeyup="buscarEmpleados(this.value)">
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>CODIGO</th>
+                            <th>NOMBRE</th>
+                            <th>DIRECCION</th>
+                            <th>TELEFONO</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody> </tbody>
+                </table>
+            </div>
+        </div>  
+    </div>
+</div>
+<script>
+    mostrarDatosEmpleados();
+
+    function buscarEmpleados(val){
+        mostrarDatosEmpleados(val);
+    }
+    
+     function mostrarDatosEmpleados(valor){
+        valor = valor || '';
+        fetch(`/buscar_empleados`,{
+            method: 'POST',
+            body:j=JSON.stringify({buscar: valor})
+        }).then(resp=>resp.json())
+        .then(resp=>{
+            let $tblEmpleados = document.querySelector("#tblConsultaEmpleados > tbody"),
+                $filas = '';
+            resp.forEach(empleado => {
+                $filas += `
+                    <tr onClick='modificarEmpleados(${ JSON.stringify(Empleados) })'>
+                        <td>${empleado.codigo}</td>
+                        <td>${Empleados.nombre}</td>
+                        <td>${Empleados.direccion}</td>
+                        <td>${Empleados.telefono}</td>
+                        <td><button onClick='eliminarEmpleado(${ JSON.stringify(empleado) })' class="btn btn-danger">Eliminar</button></td>
+                    </tr>
+                `;
+            });
+            $tblEmpleados.innerHTML = $filas;
+        });
+    }
+    function modificarEmpleado(empleado){
+        frmEmpleados.dataset.accion = "modificar";
+        frmEmpleados.dataset.idempleado = empleado.idempleado;
+        txtCodigoEmpleados.value = empleado.codigo;
+        txtNombreEmpleados.value = empleado.nombre;
+        txtDireccionEmpleados.value = empleado.direccion;
+        txtTelefonoEmpleados.value = empleado.telefono;
+    }
+    function eliminarEmpleado(empleado){
+        if( confirm(`Esta seguro de eliminar a: ${empleado.nombre}`) ){
+            fetch("/empleados", {
+                method: "POST",
+                body: JSON.stringify({accion: "eliminar", idEmpleado: cliente.idEmpleado})
+            }).then(resp=>resp.json())
+            .then(respuesta=>{
+                if( respuesta.msg=="ok" ){
+                    limpiarDatosEmpleados();
+                    mostrarDatosEmpleados();
+                }
+            });
+        }
+    }
+   
+</script>
